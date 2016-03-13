@@ -24,7 +24,7 @@ def diff(A,B):
     E = []
  
     for i in range(len(A)):
-        E.append(A[i] - B[i])
+        E.append(abs(A[i] - B[i]))
  
     return E
 
@@ -61,34 +61,7 @@ def interpolate(A,B, current):
         sum = sum + C[i]
        
     return sum
-    
 
- 
-     
-"""
-def interpolate(A,B):
-    currentXValue = A[0];
-    for l in range(A):
-        k=0.
-        for i in range(A):
-            s=1.
-            t=1.
-            
-            for j in range(A):
-            
-                if(j!=i):
-                
-                    s=s*(currentXValue-A[j])
-                    t=t*(A[i]-A[j])
-                
-            
-            k=k+((s/t)*B[i])
-            
-            
-        
-
-        currentXValue +=intervals;
-"""
 
 def show(vec):
     for row in vec:
@@ -108,7 +81,8 @@ def plot(xValActual,yValActual,xValIP,yValIP):
 def plotDiff(xValActual,diffY):
     plt.title(r'$Plot Difference Between Actual Values and Interpolated Values$')
     plt.plot(xValActual,diffY, color = 'red', label = 'Difference')
-    plt.axis([-1,1.5,-.1,.15], 1/6)
+    plt.axis([-.25,1.1,-.025,.10])
+    plt.xticks(np.arange(min(x)-.25, max(x)+.15, .25))
     plt.axhline(y=0,color='black')
     plt.axvline(x=0,color='black')
     plt.legend(loc = 'lower right')
@@ -117,9 +91,12 @@ def plotDiff(xValActual,diffY):
 xValActual,yValActual = valuecurve()
 #plot(xValActual,yValActual)
 x, y = plotterActual()
+C = interpolate(x,y, x[1])
+
+
 xVal, yVal = valueInter(x,y)
 
-#plot(xValActual,yValActual,xVal, yVal)
+plot(xValActual,yValActual,xVal, yVal)
 
 diffY = diff(yValActual, yVal)
 #show(diffX)
