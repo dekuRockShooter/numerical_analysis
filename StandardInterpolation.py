@@ -65,6 +65,97 @@ def interpolate(A,B, current):
        
     return sum
 
+def _lagrange(k, x, nodes):
+    """Computes Lk(x).
+
+    The k'th Lagrange polynomial is evaluated using the given nodes.
+
+    Args:
+        k: the index of the node for which the function returns 1.
+        x: a real number.
+        nodes: the nodes (given x values) for which the function
+               values are known.
+
+    Returns:
+        Lk(x).
+    """
+    numerator = 1;
+    denomenator = 1;
+    result = 0
+    for j in range(len(nodes)):
+        if nodes[j] == nodes[k]:
+            continue
+        numerator = numerator * (x - nodes[j])
+        denomenator = denomenator * (nodes[k] - nodes[j])
+    return 1.0 * numerator / denomenator
+
+def _lagrange_derivative(k, nodes):
+    """Evaluate the derivative of the k'th Lagrange function at x_k.
+
+    Args:
+        k: the index of the node at which to evaluate the derivative.
+        nodes: the known set of x values.
+    """
+    sum = 0
+    for j in range(len(nodes)):
+        if j != k:
+            sum = sum + 1.0 * 1 / (nodes[k] - nodes[j])
+    return sum
+
+def _hermite_left(k, x, nodes):
+    """Evaluates the k'th Hermite function for function values.
+
+    Args:
+        k: the index of the node for which the function returns 1.
+        x: a real number.
+        nodes: the nodes (given x values) for which the function
+               values are known.
+
+    Returns:
+        The function value evaluated at x.
+    """
+    term_1 = _lagrange(k, x, nodes)
+    term_1 = term_1 * term_1
+    derivative = _lagrange_derivative(k, nodes)
+    return term_1 * (1 - (2 * derivative * (x - nodes[k])))
+
+def _hermite_right(k, x, nodes):
+    """Evaluates the k'th Hermite function for derivative values.
+
+    Args:
+        k: the index of the node for which the function returns 1.
+        x: a real number.
+        nodes: the nodes (given x values) for which the function
+               values are known.
+
+    Returns:
+        The function value evaluated at x.
+    """
+    term_1 = _lagrange(k, x, nodes)
+    term_1 = term_1 * term_1
+    return term_1 * (x - nodes[k])
+
+def hermite_interp(x, nodes, values, deriv_vals):
+    """Interpolate a set of data using Hermite interpolation.
+
+    Args:
+        x: a real number to evaluate.
+        nodes: the known set of x values.
+        values: the known function values at each node.
+        deriv_vals: the known function derivative values at each node.
+
+    Returns:
+        f(x), where f is the unknown function that is being
+        approximated, such that f(nodes[k]) = values[k] and
+        f'(nodes[k]) = deriv_vals[k]
+    """
+    sum = 0
+    for k in range(len(nodes)):
+        left_term = _hermite_left(k, x, nodes) * values[k]
+        right_term = _hermite_right(k, x, nodes) * deriv_vals[k]
+        sum = sum + left_term + right_term
+    return sum
+
 def show(vec):
     for row in vec:
         print row
