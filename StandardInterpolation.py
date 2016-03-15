@@ -156,6 +156,62 @@ def hermite_interp(x, nodes, values, deriv_vals):
         sum = sum + left_term + right_term
     return sum
 
+def _pos_linear(x, last_node=False):
+    """Implement the positive linear spline basis function.
+
+    Args:
+        x: a real number.
+        last_node: boolean for changing the bounds.
+
+    Returns:
+        x if x is in [0, 1) and last_node is False.
+        x if x is in [0, 1] and last_node is True.
+        0, otherwise.
+    """
+    if last_node:
+        if (x >= 0) and (x <= 1):
+            return x
+    elif (x >= 0) and (x < 1):
+        return x
+    return 0
+
+def _neg_linear(x):
+    """Implement the negative linear spline basis function.
+
+    Args:
+        x: a real number.
+
+    Returns:
+        1 - x if x is in [0, 1).
+        0, otherwise.
+    """
+    if (x >= 0) and (x < 1):
+        return 1 - x
+    return 0
+
+def linear_spline_interp(x, nodes, values):
+    """Interpolate a set of data using linear spline interpolation.
+
+    Args:
+        x: a real number to evaluate.
+        nodes: the known set of x values.
+        values: the known function values at each node.
+
+    Returns:
+        f(x), where f is the unknown function that is being
+        approximated, such that f(nodes[k]) = values[k].  The values
+        in between nodes are approximated with a line that connects
+        the boundary nodes.
+    """
+    sum = _neg_linear(1.0*(x - nodes[0]) / (nodes[1] - nodes[0])) * values[0]
+    for k in range(1, len(nodes) - 1):
+        pos = _pos_linear(1.0*(x - nodes[k - 1]) / (nodes[k] - nodes[k - 1]))
+        neg = _neg_linear(1.0*(x - nodes[k]) / (nodes[k + 1] - nodes[k]))
+        sum = sum + (1.0*(pos + neg) * values[k])
+    last_term = _pos_linear(1.0*(x - nodes[k]) / (nodes[k + 1] - nodes[k]),
+                            True)
+    return sum + (last_term * values[k + 1])
+
 def show(vec):
     for row in vec:
         print row
@@ -191,7 +247,7 @@ x_005, y_005 = valuecurve()
 y_005_approx_lagrange = valueInter(nodes, values)[1] # Lagrange approx
 y_005_approx_hermite = [hermite_interp(x, nodes, values, deriv_vals)
                         for x in x_005]
-#y_005_approx_linear = [linear_spline_interp(x, nodes, values) for x in x_005]
+y_005_approx_linear = [linear_spline_interp(x, nodes, values) for x in x_005]
 # Lagrange plots
 plot(x_005, y_005, x_005, y_005_approx_lagrange, 'Lagrange interpolation')
 diff_lagrange = diff(y_005, y_005_approx_lagrange)
@@ -200,3 +256,7 @@ plotDiff(x_005, diff_lagrange, 'Lagrange')
 plot(x_005, y_005, x_005, y_005_approx_hermite, 'Hermite interpolation')
 diff_hermite = diff(y_005, y_005_approx_hermite)
 plotDiff(x_005, diff_hermite, 'Hermite')
+# Linear spline
+plot(x_005, y_005, x_005, y_005_approx_linear, 'Linear spline interpolation')
+diff_linear = diff(y_005, y_005_approx_linear)
+plotDiff(x_005, diff_linear, 'Linear spline')
