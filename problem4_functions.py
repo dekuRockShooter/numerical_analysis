@@ -98,16 +98,31 @@ def print_results(two_lists):
         print(str(x),str(y))
 
 # L6 with first node set
-approx_coords = get_lagrange_results(0., 1.01, list1)
+approx_coords = get_lagrange_results(-2.0, 2.0, list1)
 # [x0, xn]
-plotLagrange(approx_coords, -0.9, 1.1, -2, 2, list1)
+plotLagrange(approx_coords, -0.1, 1.1, -2, 2, list1)
+# [x0, xn] zoomed out
+plotLagrange(approx_coords, -0.1, 1.1, -160, 30, list1)
 # Show before x0
-plotLagrange(approx_coords, -1, 1, -2, 2, list1)
+plotLagrange(approx_coords, -1, 1, -20, 200, list1)
 # Show after xn
-plotLagrange(approx_coords, 0.0, 2, -20, 20, list1)
-plotLagrange(approx_coords, -0.1, 1.1, -210, 65, list1)
+plotLagrange(approx_coords, 0.0, 2, -20, 200, list1)
+# Everything zoomed out
+plotLagrange(get_lagrange_results(-0.25, 1.1, list1), -0.5, 1.5, -210, 5000,
+             list1)
+
+approx_coords = get_lagrange_results(-2.0, 2.0, list2)
+# [x0, xn]
+plotLagrange(approx_coords, -0.1, 1.1, -2, 2, list2)
+# [x0, xn] zoomed out
+plotLagrange(approx_coords, -0.1, 1.1, -8, 2, list2)
+# Show before x0
+plotLagrange(approx_coords, -1, 1, -20, 200, list2)
+# Show after xn
+plotLagrange(approx_coords, 0.0, 2, -20, 200, list2)
+# Everything zoomed out
+plotLagrange(get_lagrange_results(-0.25, 1.1, list2), -0.5, 1.5, -210, 5000,
+             list2)
 
 plotPi(get_pi_results(0., 1.01, list1), -0.1, 1.1, -0.000105, 0.000035)
-plotLagrange(get_lagrange_results(-0.25, 1.1, list1), -0.5, 1.5, -210, 5000,
-             list2)
 plotPi(get_pi_results(-0.25, 1.1, list1), -0.3, 1.2, -0.002, 0.0033)
