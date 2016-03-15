@@ -36,7 +36,7 @@ def valueInter(A,B):
     D = []
     for x in np.arange (0,1.005,0.005):
         C.append(x)
-        D.append(interpolate(A,B,x))
+        D.append(lagrange_interpolate(A,B,x))
     return C,D
            
 def yValue(x):
@@ -49,7 +49,7 @@ def derivative(x):
     deriv = -(4*sin(3*pi*x)-6*pi*cos(3*pi*x))/(e**(2*x))
     return deriv
 
-def interpolate(A,B, current):
+def lagrange_interpolate(A,B, current):
     """Uses Lagrange interpolation with the nodes and values in A, B."""
     C = []
     
@@ -184,22 +184,19 @@ def plotDiff(xValActual,diffY, title):
     plt.legend(loc = 'lower right')
     plt.show()
 
-    
-xValActual,yValActual = valuecurve()
-#plot(xValActual,yValActual)
-x, y = plotterActual()
-C = interpolate(x,y, x[1])
 
-
-xVal, yVal = valueInter(x,y)
-
-plot(xValActual,yValActual,xVal, yVal)
-
-diffY = diff(yValActual, yVal)
-#show(diffX)
-#show(diffY)
-plotDiff(xValActual, diffY)
-
-#fromip = interpolate(xVa, Yva)
-
-
+nodes, values = plotterActual()
+deriv_vals = [derivative(x) for x in nodes]
+x_005, y_005 = valuecurve()
+y_005_approx_lagrange = valueInter(nodes, values)[1] # Lagrange approx
+y_005_approx_hermite = [hermite_interp(x, nodes, values, deriv_vals)
+                        for x in x_005]
+#y_005_approx_linear = [linear_spline_interp(x, nodes, values) for x in x_005]
+# Lagrange plots
+plot(x_005, y_005, x_005, y_005_approx_lagrange, 'Lagrange interpolation')
+diff_lagrange = diff(y_005, y_005_approx_lagrange)
+plotDiff(x_005, diff_lagrange, 'Lagrange')
+## Hermite plots
+plot(x_005, y_005, x_005, y_005_approx_hermite, 'Hermite interpolation')
+diff_hermite = diff(y_005, y_005_approx_hermite)
+plotDiff(x_005, diff_hermite, 'Hermite')
