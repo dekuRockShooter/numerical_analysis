@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def plotterActual():
+    """Return the lists x_k and y_k, calculated as 2sin(3pix)e^-2x."""
     A = [0., 1./24, 1./12, 1./6, 1./4, 1./3, 5./12, 1./2, 2./3, 5./6, 1.]
     B = []
     for i in A:
@@ -13,6 +14,7 @@ def plotterActual():
     
   
 def valuecurve():
+    """Return the lists .005k and y_k, calculated as 2sin(3pix)e^-2x."""
     A = []
     B = []
     for x in np.arange (0,1.005,0.005):
@@ -29,6 +31,7 @@ def diff(A,B):
     return E
 
 def valueInter(A,B):
+    """Return the lists .005k and y_k, approx to 2sin(3pix)e^-2x."""
     C = []
     D = []
     for x in np.arange (0,1.005,0.005):
@@ -37,31 +40,30 @@ def valueInter(A,B):
     return C,D
            
 def yValue(x):
+    """Returns 2sin(3pix)e^-2x"""
     yVal = (2*sin(3*pi*x))/(e**(2*x))
     return yVal
 def derivative(x):
+    """Returns the derivative of 2sin(3pix)e^-2x"""
     
     deriv = -(4*sin(3*pi*x)-6*pi*cos(3*pi*x))/(e**(2*x))
     return deriv
 
 def interpolate(A,B, current):
+    """Uses Lagrange interpolation with the nodes and values in A, B."""
     C = []
     
     sum = 0
     for i in range(len(A)):
         temp = 1
         k = i
-        for j in range(len(A)):
-            if(k!=j):
-                temp = temp * (current - A[j])/(A[k]-A[j])
-        
+        temp = _lagrange(k, current, A)
         C.append(B[i] * temp)
         
     for i in range(len(C)):
         sum = sum + C[i]
        
     return sum
-
 
 def show(vec):
     for row in vec:
