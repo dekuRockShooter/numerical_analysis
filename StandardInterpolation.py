@@ -159,27 +159,31 @@ def hermite_interp(x, nodes, values, deriv_vals):
 def show(vec):
     for row in vec:
         print row
-def plot(xValActual,yValActual,xValIP,yValIP):
-    plt.title(r'$(2*sin(3*pi*x))/(e**(2*x))$')
+
+def plot(xValActual,yValActual,xValIP,yValIP, title):
+    plt.title(title + r' of $(2*sin(3*pi*x))/(e**(2*x))$')
     plt.plot(xValActual,yValActual,color='red', label = 'Actual values')
     plt.plot(xValIP,yValIP,color='blue', label = 'Interpolated Values')
     
-    plt.axis([-1,1.5,-2,2], 1/6)
+    plt.axis([0,1,-1,1.5], 1/6)
     plt.axhline(y=0,color='black')
     plt.axvline(x=0,color='black')
-    plt.legend(loc = 'lower right')
+    plt.legend(loc = 'top')
 
     plt.show()
     plt.savefig("example.pdf")
-def plotDiff(xValActual,diffY):
-    plt.title(r'$Plot Difference Between Actual Values and Interpolated Values$')
+
+def plotDiff(xValActual,diffY, title):
+    plt.title(r'$Plot Difference Between Actual Values and '+ title +
+              ' Interpolated Values$')
     plt.plot(xValActual,diffY, color = 'red', label = 'Difference')
-    plt.axis([-.25,1.1,-.025,.10])
-    plt.xticks(np.arange(min(x)-.25, max(x)+.15, .25))
+    plt.axis([-.25,1.1,.0, max(diffY)])
+    plt.xticks(np.arange(min(xValActual)-.25, max(xValActual)+.15, .25))
     plt.axhline(y=0,color='black')
     plt.axvline(x=0,color='black')
     plt.legend(loc = 'lower right')
     plt.show()
+
     
 xValActual,yValActual = valuecurve()
 #plot(xValActual,yValActual)
