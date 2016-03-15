@@ -13,7 +13,7 @@ def get_g_results(nodelist):
     ans = []
     for element in nodelist:
         ans.append(g_func(element))
-    return ans
+    return nodelist, ans
 
 def frange(start, end, jump):
     ans = []
@@ -30,12 +30,12 @@ def pi_func(x, nodelist):
     return ans
 
 def get_pi_results(start, end, nodelist):
+    x_values = frange(start, end, 0.1)
     ans = []
-    for element in frange(start, end, 0.1):
+    for element in x_values:
         ans.append(pi_func(element, nodelist))
-    return ans
+    return x_values, ans
 
-def print_results(list_x, list_y):
-    for x,y in zip(list_x, list_y):
+def print_results(two_lists):
+    for x,y in zip(two_lists[0], two_lists[1]):
         print(str(x),str(y))
-
