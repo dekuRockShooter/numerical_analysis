@@ -212,6 +212,144 @@ def linear_spline_interp(x, nodes, values):
                             True)
     return sum + (last_term * values[k + 1])
 
+def _pos_cubic(x, last_node=False):
+    """Positive cubic basis function.
+
+    Args:
+        x: a real number.
+        last_node: boolean for changing the bounds.
+
+    Returns:
+        1 - _neg_cubic(x) if x is in [0, 1) and last_node is False.
+        1 if x is 1 and last_node is True.
+        0, otherwise.
+    """
+    if last_node:
+        if (x >= 0) and (x <= 1):
+            return 1 - _neg_cubic(x)
+    if (x >= 0) and (x < 1):
+        return 1 - _neg_cubic(x)
+    return 0
+
+def _neg_cubic(x):
+    """Negative cubic basis function.
+
+    Args:
+        x: a real number.
+
+    Returns:
+        ((x - 1)**2) * (2*x + 1) if x is in [0, 1)
+        0, otherwise.
+    """
+    if (x >= 0) and (x < 1):
+        return ((x - 1)**2) * (2*x + 1)
+    return 0
+
+def _pos_cubic_deriv(x):
+    """Positive cubic derivative basis function.
+
+    Args:
+        x: a real number.
+
+    Returns:
+        x * ((x - 1)**2) if x is in [0, 1)
+        0, otherwise.
+    """
+    if (x >= 0) and (x < 1):
+        return x * ((x - 1)**2)
+    return 0
+
+def _neg_cubic_deriv(x, last_node=False):
+    """Negative cubic derivative basis function.
+
+    Args:
+        x: a real number.
+        last_node: boolean for changing the bounds.
+
+    Returns:
+        (x**2) * (x - 1) if x is in [0, 1) and last_node is False.
+        1 if x is 1 and last_node is True.
+        0, otherwise.
+    """
+    if last_node and (x == 1):
+        return 1
+    if (x >= 0) and (x < 1):
+        return (x**2) * (x - 1)
+    return 0
+
+def _cubic_basis(x, nodes, values):
+    """Approximate input using the cubic basis functions.
+
+    This function very roughly approximates f(x), where f is an unknown
+    function whose values are known only at the nodes.  To get a good
+    approximation, this must be used in coordination with
+    _cubic_deriv_basis.
+
+    Args:
+        x: the input to approximate the function value of.
+        nodes: the known set of x values.
+        values: the known function values at each node.
+
+    Returns:
+        A crude approximation to f(x)
+    """
+    sum = values[0]*_neg_cubic(1.0*(x - nodes[0]) / (nodes[1] - nodes[0]))
+    for k in range(1, len(nodes) - 1):
+        pos = _pos_cubic(1.0*(x - nodes[k - 1]) / (nodes[k] - nodes[k - 1]))
+        neg = _neg_cubic(1.0*(x - nodes[k]) / (nodes[k + 1] - nodes[k]))
+        sum = sum + (1.0*(pos + neg) * values[k])
+    last_term = values[k + 1]*_pos_cubic(1.0*(x - nodes[k]) /
+                                         (nodes[k + 1] - nodes[k]), True)
+    return sum + last_term
+
+def _cubic_deriv_basis(x, nodes, deriv_vals):
+    """Correct the approximation of _cubic_basis.
+
+    This functions corrects over and under approximations from
+    _cubic_basis.  It should be called using the same x values, nodes,
+    and values as those used when calling _cubic_basis so that the
+    approximations will be good.
+
+    Args:
+        x: the input to approximate the function value of.
+        nodes: the known set of x values.
+        deriv_vals: the known function derivative values at each node.
+
+    Returns:
+        A correction to the approximation of f(x), as approximated by
+        _cubic_basis.
+    """
+    denom = (nodes[1] - nodes[0])
+    sum = deriv_vals[0] * denom * _pos_cubic_deriv(1.0*(x - nodes[0]) / denom)
+    for k in range(1, len(nodes) - 1):
+        denom = (nodes[k + 1] - nodes[k])
+        pos = _pos_cubic_deriv(1.0*(x - nodes[k]) / denom) * denom
+        denom = (nodes[k] - nodes[k - 1])
+        neg = _neg_cubic_deriv(1.0*(x - nodes[k - 1]) / denom) * denom
+        sum = sum + (1.0*(pos + neg) * deriv_vals[k])
+    denom = (nodes[k + 1] - nodes[k])
+    last_term = deriv_vals[k + 1]*_neg_cubic_deriv(1.0*(x - nodes[k]) / denom,
+                                                   False) * denom
+    return sum + last_term
+
+def cubic_spline_interp(x, nodes, values, deriv_vals):
+    """Interpolate a set of data using cubic spline interpolation.
+
+    Args:
+        x: a real number to evaluate.
+        nodes: the known set of x values.
+        values: the known function values at each node.
+        deriv_vals: the known function derivative values at each node.
+
+    Returns:
+        f(x), where f is the unknown function that is being
+        approximated, such that f(nodes[k]) = values[k].  The values
+        in between nodes are approximated with a cubic curve that
+        connects the boundary nodes.
+    """
+    return _cubic_basis(x, nodes, values) +\
+           _cubic_deriv_basis(x, nodes, deriv_vals)
+
 def show(vec):
     for row in vec:
         print row
@@ -248,6 +386,8 @@ y_005_approx_lagrange = valueInter(nodes, values)[1] # Lagrange approx
 y_005_approx_hermite = [hermite_interp(x, nodes, values, deriv_vals)
                         for x in x_005]
 y_005_approx_linear = [linear_spline_interp(x, nodes, values) for x in x_005]
+y_005_approx_cubic = [cubic_spline_interp(x, nodes, values, deriv_vals)
+                      for x in x_005]
 # Lagrange plots
 plot(x_005, y_005, x_005, y_005_approx_lagrange, 'Lagrange interpolation')
 diff_lagrange = diff(y_005, y_005_approx_lagrange)
@@ -260,3 +400,7 @@ plotDiff(x_005, diff_hermite, 'Hermite')
 plot(x_005, y_005, x_005, y_005_approx_linear, 'Linear spline interpolation')
 diff_linear = diff(y_005, y_005_approx_linear)
 plotDiff(x_005, diff_linear, 'Linear spline')
+# Cubic spline
+plot(x_005, y_005, x_005, y_005_approx_cubic, 'Cubic spline interpolation')
+diff_cubic = diff(y_005, y_005_approx_cubic)
+plotDiff(x_005, diff_cubic, 'Cubic spline')
