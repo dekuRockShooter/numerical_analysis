@@ -64,13 +64,16 @@ def get_lagrange_results(start, end, nodelist):
     ans = []
     for element in x_values:
         ans.append(lagrange_6(element, nodelist))
+        #ans.append(_lagrange(6, element, nodelist))
     return x_values, ans
 
-def plotLagrange(lagrange, xmin, xmax, ymin, ymax):
+def plotLagrange(lagrange, xmin, xmax, ymin, ymax, xticks):
     plt.title(r'$L_6(x)$')
     plt.plot(lagrange[0],lagrange[1],color='blue', label = 'Lagrange_6 Values')
     
     plt.axis([xmin, xmax, ymin, ymax])
+    plt.xticks(xticks)
+    plt.grid(True)
     plt.axhline(y=0,color='black')
     plt.axvline(x=0,color='black')
     plt.legend(loc = 'upper left')
@@ -94,7 +97,17 @@ def print_results(two_lists):
     for x,y in zip(two_lists[0], two_lists[1]):
         print(str(x),str(y))
 
-plotLagrange(get_lagrange_results(0., 1.01, list1), -0.1, 1.1, -210, 65)
+# L6 with first node set
+approx_coords = get_lagrange_results(0., 1.01, list1)
+# [x0, xn]
+plotLagrange(approx_coords, -0.9, 1.1, -2, 2, list1)
+# Show before x0
+plotLagrange(approx_coords, -1, 1, -2, 2, list1)
+# Show after xn
+plotLagrange(approx_coords, 0.0, 2, -20, 20, list1)
+plotLagrange(approx_coords, -0.1, 1.1, -210, 65, list1)
+
 plotPi(get_pi_results(0., 1.01, list1), -0.1, 1.1, -0.000105, 0.000035)
-plotLagrange(get_lagrange_results(-0.25, 1.1, list1), -0.5, 1.5, -210, 5000)
+plotLagrange(get_lagrange_results(-0.25, 1.1, list1), -0.5, 1.5, -210, 5000,
+             list2)
 plotPi(get_pi_results(-0.25, 1.1, list1), -0.3, 1.2, -0.002, 0.0033)
