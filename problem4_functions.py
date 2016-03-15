@@ -1,5 +1,6 @@
 from math import exp, sin, pi, e
 from operator import mul
+import numpy as np
 
 list1 = [0., 1./24., 1./12., 1./6., 1./4., 1./3., 5./12., 1./2., 2./3., 5./6., 1.]
 list2 = [0., 1./10., 2./10., 3./10., 4./10., 5./10., 6./10., 7./10., 8./10., 9./10., 1.]
@@ -30,10 +31,28 @@ def pi_func(x, nodelist):
     return ans
 
 def get_pi_results(start, end, nodelist):
-    x_values = frange(start, end, 0.1)
+    #x_values = frange(start, end, 0.1)
+    x_values = np.arange(start, end, 0.1)
     ans = []
     for element in x_values:
         ans.append(pi_func(element, nodelist))
+    return x_values, ans
+
+def lagrange_6(x, nodelist):
+    temp = nodelist[:6] + nodelist[(7):]
+    num = []
+    denom = []
+    for element in temp:
+        num.append(x - element)
+        denom.append(nodelist[6] - element)
+    ans = reduce(mul, num) / reduce(mul, denom)
+    return ans
+
+def get_lagrange_results(start, end, nodelist):
+    x_values = np.arange(start, end, 0.1)
+    ans = []
+    for element in x_values:
+        ans.append(lagrange_6(element, nodelist))
     return x_values, ans
 
 def print_results(two_lists):
