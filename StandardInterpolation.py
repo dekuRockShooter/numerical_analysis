@@ -354,11 +354,12 @@ def show(vec):
     for row in vec:
         print row
 
-def plot(xValActual,yValActual,xValIP,yValIP, title):
+def plot(xValActual,yValActual,xValIP,yValIP, diffY, title):
     plt.title(title + r' of $(2*sin(3*pi*x))/(e**(2*x))$')
     plt.plot(xValActual,yValActual,color='red', label = 'Actual values')
     plt.plot(xValIP,yValIP,color='blue', label = 'Interpolated Values')
-    
+    plt.plot(xValActual,diffY, color = 'black', label = 'Absolute difference')
+
     plt.axis([0,1,-1,1.5], 1/6)
     plt.axhline(y=0,color='black')
     plt.axvline(x=0,color='black')
@@ -389,18 +390,20 @@ y_005_approx_linear = [linear_spline_interp(x, nodes, values) for x in x_005]
 y_005_approx_cubic = [cubic_spline_interp(x, nodes, values, deriv_vals)
                       for x in x_005]
 # Lagrange plots
-plot(x_005, y_005, x_005, y_005_approx_lagrange, 'Lagrange interpolation')
 diff_lagrange = diff(y_005, y_005_approx_lagrange)
-plotDiff(x_005, diff_lagrange, 'Lagrange')
+plot(x_005, y_005, x_005, y_005_approx_lagrange, diff_lagrange,
+     'Lagrange interpolation')
 ## Hermite plots
-plot(x_005, y_005, x_005, y_005_approx_hermite, 'Hermite interpolation')
 diff_hermite = diff(y_005, y_005_approx_hermite)
-plotDiff(x_005, diff_hermite, 'Hermite')
+diff_hermite_scaled = [10**7*x for x in diff_hermite]
+plot(x_005, y_005, x_005, y_005_approx_hermite, diff_hermite_scaled,
+     'Hermite interpolation')
 # Linear spline
-plot(x_005, y_005, x_005, y_005_approx_linear, 'Linear spline interpolation')
 diff_linear = diff(y_005, y_005_approx_linear)
-plotDiff(x_005, diff_linear, 'Linear spline')
+plot(x_005, y_005, x_005, y_005_approx_linear, diff_linear,
+     'Linear spline interpolation')
 # Cubic spline
-plot(x_005, y_005, x_005, y_005_approx_cubic, 'Cubic spline interpolation')
 diff_cubic = diff(y_005, y_005_approx_cubic)
-plotDiff(x_005, diff_cubic, 'Cubic spline')
+diff_cubic_scaled = [10**2*x for x in diff_cubic]
+plot(x_005, y_005, x_005, y_005_approx_cubic, diff_cubic_scaled,
+     'Cubic spline interpolation')
