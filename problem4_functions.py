@@ -85,6 +85,7 @@ def plotPi(piValues, xmin, xmax, ymin, ymax):
     plt.plot(piValues[0],piValues[1],color='red', label = 'Pi Values')
     
     plt.axis([xmin, xmax, ymin, ymax])
+    plt.grid(True)
     plt.axhline(y=0,color='black')
     plt.axvline(x=0,color='black')
     plt.legend(loc = 'upper left')
@@ -97,32 +98,81 @@ def print_results(two_lists):
     for x,y in zip(two_lists[0], two_lists[1]):
         print(str(x),str(y))
 
+#********************************LAGRANGE***********************************
+#***************************************************************************
+# FIRST NODE SET:
 # L6 with first node set
 approx_coords = get_lagrange_results(-2.0, 2.0, list1)
+
 # [x0, xn]
 plotLagrange(approx_coords, -0.1, 1.1, -2, 2, list1)
 # [x0, xn] zoomed out
 plotLagrange(approx_coords, -0.1, 1.1, -160, 30, list1)
+
 # Show before x0
 plotLagrange(approx_coords, -1, 1, -20, 200, list1)
 # Show after xn
 plotLagrange(approx_coords, 0.0, 2, -20, 200, list1)
+
 # Everything zoomed out
 plotLagrange(get_lagrange_results(-0.25, 1.1, list1), -0.5, 1.5, -210, 5000,
              list1)
-
+#***************************************************************************
+# SECOND NODE SET:
+# L_6 with second node set
 approx_coords = get_lagrange_results(-2.0, 2.0, list2)
+
 # [x0, xn]
 plotLagrange(approx_coords, -0.1, 1.1, -2, 2, list2)
 # [x0, xn] zoomed out
 plotLagrange(approx_coords, -0.1, 1.1, -8, 2, list2)
+
 # Show before x0
 plotLagrange(approx_coords, -1, 1, -20, 200, list2)
 # Show after xn
 plotLagrange(approx_coords, 0.0, 2, -20, 200, list2)
+
 # Everything zoomed out
 plotLagrange(get_lagrange_results(-0.25, 1.1, list2), -0.5, 1.5, -210, 5000,
              list2)
+#***************************************************************************
 
-plotPi(get_pi_results(0., 1.01, list1), -0.1, 1.1, -0.000105, 0.000035)
-plotPi(get_pi_results(-0.25, 1.1, list1), -0.3, 1.2, -0.002, 0.0033)
+#********************************** PI *************************************
+#***************************************************************************
+# FIRST NODE SET:
+# pi with first node set
+approx_coords = get_pi_results(-2., 2.01, list1)
+
+# [x0, xn]
+plotPi(approx_coords , -0.1, 1.1, -0.000010, 0.000010)
+# [x0, xn] zoomed in
+plotPi(approx_coords , -0.1, 1.1, -0.0000003, 0.0000003)
+# [x0, xn] zoomed out
+plotPi(approx_coords , -0.2, 1.1, -0.00011, 0.00011)
+
+# Show before x0
+plotPi(approx_coords , -0.4, 1.1, -0.00013, 0.00002)
+# Show after xn
+plotPi(approx_coords , -0.2, 1.1, -0.00011, 0.0003)
+
+# Everything zoomed out
+plotPi(approx_coords, -0.4, 1.2, -0.006, 0.006)
+#***************************************************************************
+# SECOND NODE SET:
+# pi with second node set
+approx_coords = get_pi_results(-2., 2.01, list2)
+
+# [x0, xn]
+plotPi(approx_coords , -0.1, 1.1, -0.000010, 0.000010)
+# [x0, xn] zoomed in
+plotPi(approx_coords , -0.1, 1.1, -0.0000003, 0.0000003)
+# [x0, xn] zoomed out
+plotPi(approx_coords , -0.2, 1.2, -0.00011, 0.00011)
+
+# Show before x0
+plotPi(approx_coords , -0.4, 1.1, -0.00013, 0.00002)
+# Show after xn
+plotPi(approx_coords , -0.1, 1.2, -0.00005, 0.00035)
+
+# Everything zoomed out
+plotPi(approx_coords, -0.4, 1.4, -0.010, 0.010)
