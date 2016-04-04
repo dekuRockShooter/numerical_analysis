@@ -9,7 +9,7 @@ def gx_prime(x):
 def central_diff(x, h):
     return ((g_x(x+h) - g_x(x-h))/(2*h)) 
 
-def problem_3():
+def problem_1():
     true = gx_prime(1.4)
     print("g'(1.4) = %1.20f" %(true))
     print("            h                          g(1.4)                        r.error         ")
@@ -19,4 +19,4 @@ def problem_3():
         print("   %.20f       %2.20f       %.20f    " %((10.**(-i)), value, abs((true-value))/abs(true)))
     return
 
-problem_3()
+problem_1()
