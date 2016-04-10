@@ -6,7 +6,7 @@ from math import pow
 
 
 
-""" Computes the Larrange interpolation polynomial given a list of x and g(x) values using a poly1d array to hold the poly
+""" Computes the Lagrange interpolation polynomial given a list of x and g(x) values using a poly1d array to hold the poly
    Args: 
       x: a list of x values
       g(x): a list of y values
