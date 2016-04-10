@@ -6,27 +6,28 @@ from math import pow
 
 
 
-# Computes Larrange Interpolation Polynomial Given list of points x and g(x)  
+""" Computes the Larrange interpolation polynomial given a list of x and g(x) values using a poly1d array to hold the poly
+   Args: 
+      x: a list of x values
+      g(x): a list of y values
+   Returns:
+      result:  a poly1d array that holds the Lagrange polynomial. A poly1d array is well suited for this task
+               because printing the array shows the degree of x. We can also find the derivative in one line of code.
+"""
 def lagrangeInterpolation(x, gx):
-   #setting result = 0
    result = scipy.poly1d([0.0]) 
-   for i in range(0,len(x)): #number of polynomials L_k(x).
-      temp_numerator = scipy.poly1d([1.0]) # resets temp_numerator such that a new numerator can be created for each i.
-      denumerator = 1.0 #resets denumerator such that a new denumerator can be created for each i.
+   for i in range(0,len(x)): 
+      temp_numerator = scipy.poly1d([1.0]) 
+      denumerator = 1.0 
       for j in range(0,len(x)):
           if i != j:
-              temp_numerator *= scipy.poly1d([1.0,-x[j]]) #finds numerator for L_i
-              denumerator *= x[i]-x[j] #finds denumerator for L_i
-      result += (temp_numerator/denumerator) * gx[i] #linear combination
+              temp_numerator *= scipy.poly1d([1.0,-x[j]]) #numerator for Li
+              denumerator *= x[i]-x[j] #denumerator for Li
+      result += (temp_numerator/denumerator) * gx[i] #create the linear combo
    return result;
 
-   
-            
-    
 
 
-
-# Main Test
 
 # array of x values 
 x = scipy.array([1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8])
@@ -39,7 +40,7 @@ print "The Lagrange Polynomial: "
 print lagrangePoly
 print ""
 
-# gets the derivative of the lagrange polynomial
+# gets the derivative of the lagrange polynomial using polyder, so handy!
 derivativePoly = np.polyder(lagrangePoly)
 print "The first derivative of the Lagrange Polynomial: "
 print derivativePoly
