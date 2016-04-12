@@ -49,6 +49,22 @@ def mod_euler_generator(f, t0, x0, h):
         yield x
 
 def rk4_generator(f, t0, x0, h):
+    """Approximate a first order ODE using Runge-Kutta 4.
+
+    This generator produces a sequence of approximations to the
+    differential equation dx/dt = f(t, x(t)).  t is the variable, x is
+    a function of t and is the solution to the differential equation.
+
+    Args:
+        f: the function of t and x(t).
+        t0: the initial value of the variable.
+        x0: the value of x(t0).
+        h: the step size.
+
+    Returns:
+        A generator for the approximations.  Each approximation in the
+        sequence is separated by the step size, h.
+    """
     t = t0
     x = x0
     while True:
@@ -60,15 +76,15 @@ def rk4_generator(f, t0, x0, h):
         x = x + (1.0/6)*(k1 + (2*k2) + (2*k3) + k4)
         yield x
 
-example64 = iter(euler_generator(lambda t,x: t - x, 0.0, 0.5, 0.2))
-example65 = iter(mod_euler_generator(lambda t,x: t - x, 0.0, 0.5, 0.2))
-example66 = iter(rk4_generator(lambda t,x: t - x, 0.0, 0.5, 0.2))
+example6_4 = iter(euler_generator(lambda t,x: t - x, 0.0, 0.5, 0.2))
+example6_5 = iter(mod_euler_generator(lambda t,x: t - x, 0.0, 0.5, 0.2))
+example6_6 = iter(rk4_generator(lambda t,x: t - x, 0.0, 0.5, 0.2))
 #example62 = iter(euler_generator(lambda x,t: x - (2*t), 0, 1.0, 0.2))
 for k in range(6):
-    print next(example64)
+    print next(example6_4)
 print
 for k in range(6):
-    print next(example65)
+    print next(example6_5)
 print
 for k in range(6):
-    print next(example66)
+    print next(example6_6)
