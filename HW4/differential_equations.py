@@ -22,7 +22,22 @@ def euler_generator(f, t0, x0, h):
         t = t + h
         yield x
 
+def mod_euler_generator(f, t0, x0, h):
+    x = x0
+    t = t0
+    while True:
+        m1 = f(t, x)
+        t = t + h
+        m2 = f(t, x + (h*m1))
+        x = x + (h*0.5*(m1 + m2))
+        yield x
 
-example62 = iter(euler_generator(lambda x,t: x - (2*t), 0, 1.0, 0.2))
+
+example64 = iter(euler_generator(lambda t,x: t - x, 0.0, 0.5, 0.2))
+example65 = iter(mod_euler_generator(lambda t,x: t - x, 0.0, 0.5, 0.2))
+#example62 = iter(euler_generator(lambda x,t: x - (2*t), 0, 1.0, 0.2))
 for k in range(6):
-    print next(example62)
+    print next(example64)
+print
+for k in range(6):
+    print next(example65)
