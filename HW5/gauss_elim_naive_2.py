@@ -393,3 +393,178 @@ def checkSol_1(aug,x):
     L  = [Ax,b,r]
     return(L)
 
+def lsp_discrete(x, y, n):
+    """Calculate the coefficients of a least squares polynomial.
+
+    This function uses the normal power function basis for the
+    polynomials.
+
+    Args:
+        x: the list of independent variables.
+        y: the list of dependent variables such that x[k] = y[k].
+        n: the degree of the least squares polynomial for the data.
+
+    Returns:
+        A list of coefficients for the least squares polynomial of
+        degree n.  The k'th element is the coefficient of the k'th
+        degree term.
+    """
+    m = len(x)
+    n = n + 1
+    sum = 0
+    A = []
+    # Initialize matrix.
+    for j in range(n):
+        A.append([0 for _ in range(n + 1)])
+    for j in range(n):
+        for k in range(n):
+            sum = 0
+            #g = lambda x: x**(j + k)
+            #sum = gaussian_quadrature2(g, a, b)
+            for i in range(m):
+                sum = sum + (x[i]**(j + k))
+            A[j][k] = sum
+        sum = 0
+        #g = lambda x: x**(j) * f(x)
+        #sum = gaussian_quadrature2(g, a, b)
+        for i in range(m):
+            sum = sum + ((x[i]**j)*y[i])
+        A[j][-1] = sum # This is the b vector of the equation.
+    ge_1(A)[1]
+
+def lsp_continuous(f, a, b, n):
+    """Calculate the coefficients of a least squares polynomial.
+
+    This function uses the normal power function basis for the
+    polynomials.
+
+    Args:
+        f: the function to approximate.
+        a: the lower bound of the interval of approximation.
+        b: the upper bound of the interval of approximatio.
+        n: the degree of the least squares polynomial for the data.
+
+    Returns:
+        A list of coefficients for the least squares polynomial of
+        degree n.  The k'th element is the coefficient of the k'th
+        degree term.
+    """
+    n = n + 1
+    sum = 0
+    A = []
+    # Initialize matrix.
+    for j in range(n):
+        A.append([0 for _ in range(n + 1)])
+    for j in range(n):
+        for k in range(n):
+            sum = 0
+            g = lambda x: x**(j + k)
+            sum = gaussian_quadrature2(g, 5, a, b)
+            A[j][k] = sum
+        sum = 0
+        g = lambda x: x**(j) * f(x)
+        sum = gaussian_quadrature2(g, 5, a, b)
+        A[j][-1] = sum # This is the b vector of the equation.
+    #show(A)
+    show(ge_1(A)[1])
+
+def lsp_continuous_legendre(f, a, b, n):
+    """Calculate the coefficients of a least squares polynomial.
+
+    This function uses the Legendre polynomials as the basis for the
+    polynomials.
+
+    Args:
+        f: the function to approximate.
+        a: the lower bound of the interval of approximation.
+        b: the upper bound of the interval of approximatio.
+        n: the degree of the least squares polynomial for the data.
+
+    Returns:
+        A list of coefficients for the least squares polynomial of
+        degree n.  The k'th element is the coefficient of the k'th
+        degree term (which in this case is the k'th Legendre
+        polynomial).  For example, c0*P0(x) + ... + cn*Pn(x). If a
+        is not -1 and b is not 1, then the Legendre polynomials should
+        be shifted to be of the form Pk((2x - a - b)/(b - a)) in order
+        to see the correct results.
+
+    """
+    n = n + 1
+    A = []
+    #legendre = [lambda x: 1.0, lambda x: x, lambda x: 0.5*(3*(x**2) - 1),
+                #lambda x: 0.5*(5*(x**3) - (3*x)),
+                #lambda x: (1.0/8)*(35*(x**4) - (30*(x**2)) + 3),
+               #]
+    legendre = [lambda x: 1.0, lambda x: x, lambda x: 0.5*(3*(x**2) - 1),
+                lambda x: 0.5*(5*(x**3) - (3*x)),
+                lambda x: (1.0/8)*(35*(x**4) - (30*(x**2)) + 3),
+               ]
+    # Initialize matrix.
+    for j in range(n):
+        A.append([0 for _ in range(n + 1)])
+    for j in range(n):
+        for k in range(n):
+
+            def g(x):
+                x = ((2.0*x) - a - b)/(b - a)
+                return legendre[j](x) * legendre[k](x)
+
+            A[j][k] = gaussian_quadrature2(g, 5, a, b)
+        #g = lambda x: f(x) * legendre[j](x)
+
+        def g(x):
+            x1 = ((2.0*x) - a - b)/(b - a)
+            return f(x) * legendre[j](x1)
+
+        # This is the b vector of the equation.
+        A[j][-1] = gaussian_quadrature2(g, 5, a, b) 
+    show(A)
+    show(ge_1(A)[1])
+
+def problem_1():
+    x = [0.0, 0.2, 0.5, 0.7, 1.1, 1.5, 1.9, 2.3, 2.8, 3.1]
+    y = [2.56, 13.18, 30.11, 42.05, 67.53, 95.14, 124.87, 156.73, 199.50,
+         226.72]
+    for degree in range(1, 5):
+        print
+        print "degree:", degree
+        lsp_discrete(x, y, degree)
+        print
+
+
+### Test examples.
+
+#problem_1()
+#problem_2()
+
+# Example 1, Ch.8.1 in Burden & Faires 9E.
+x = [j for j in range(1, 11)]
+y = [1.3, 3.5, 4.2, 5.0, 7.0, 8.8, 10.1, 12.5, 13.0, 15.6]
+#lsp(x, y, 1)
+
+print
+# Example 2, Ch.8.1 in Burden & Faires 9E.
+x = [0.0, 0.25, 0.5, 0.75, 1.0]
+y = [1.0000, 1.2840, 1.6487, 2.1170, 2.7183]
+#lsp(x, y, 2)
+
+print
+# Example 1, Ch.8.2 in Burden & Faires 9E.
+#lsp_continuous(lambda x: math.sin(math.pi * x), 0, 1, 2)
+
+# To use the Legendre polynomials for their orthogonality, first do a linear
+# transformation to change the interval of integration to [-1, 1].
+print 'first'
+#lsp_continuous_legendre(lambda x: 0.5*((0.5*(x + 1))**(0.5)), -1, 1, 3)
+#lsp_continuous_legendre(lambda x: x**(0.5), 0, 1, 4)
+def f(x):
+    if x >= 0.5 and x <= 1:
+        return 0
+    if x <= -0.5 and x >= -1:
+        return 0
+    return 0.5
+
+lsp_continuous_legendre(f, -1.0, 1.0, 4)
+#lsp_continuous_legendre(lambda x: math.cos(x), -math.pi/2.0, math.pi/2.0, 2)
+print 'first'
