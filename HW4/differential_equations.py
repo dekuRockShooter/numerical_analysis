@@ -152,6 +152,16 @@ def rk4_n2_generator(f1, f2, t0, x0, y0, h):
         t = t + h
         yield (x, y)
 
+def newtons_method(p0, f, df, tol, max_iter):
+    p_old = p0;
+    p_new = p0;
+    for k in range(max_iter):
+        p_new = p_old - (f(p_old) / df(p_old))
+        if abs(p_new - p_old) < tol:
+            return [True, p_new]
+        p_old = p_new
+    return [False, p_new]
+
 
 # Test both Eulers and RK4 using examples 6.4, 6.5, and 6.6 from the
 # lecture notes.
@@ -238,8 +248,10 @@ def problem_1():
                  0.0, 2.0, 0.0, 1.5, title)
             plot(t_vals, abs_err, [0], [0],
                  0.0, 2.0, 0.0, .12, title + ' absolute error')
+            print title, str(max(abs_err))
             x_vals[:] = []
             abs_err[:] = []
+        print
 
 def problem_2():
     f1 = lambda t,x,y: y
@@ -250,23 +262,42 @@ def problem_2():
         title = ''
         if h < 0:
             h = 0.1
-            p2 = iter(rk4_n2_generator(f1, f2, 0.0, 0.0, -1.0, h))
+            #p2 = iter(rk4_n2_generator(f1, f2, 0.0, 0.0, -1.0, h))
+            p2 = iter(rk4_n2_generator(f1, f2, 0.0, -1.0, 0.0, h))
             title = 'RK4 with step size 0.1 absolute error'
         else:
-            p2 = iter(euler_n2_generator(f1, f2, 0.0, 0.0, -1.0, h))
+            #p2 = iter(euler_n2_generator(f1, f2, 0.0, 0.0, -1.0, h))
+            p2 = iter(euler_n2_generator(f1, f2, 0.0, -1.0, 0.0, h))
             title = 'Euler with step size ' + str(h) + ' absolute error'
         t_vals = [k*h for k in range(int(math.ceil(1.8/h)))]
         x_vals_exact_2 = [-math.cos(2*math.pi*t) for t in t_vals]
         x_vals = []
         abs_err = []
+        k = 0
         for x_exact in x_vals_exact_2:
-            x_k = list(next(p2))[1]
+            x_k = list(next(p2))[0]
             x_vals.append(x_k)
             abs_err.append(abs(x_exact - x_k))
-        plot(t_vals, x_vals, t_vals_exact, x_vals_exact,
-             0.0, 1.2, -1.1, 1.1, title)
-        plot(t_vals, abs_err, [0], [0],
-             0.0, 1.2, 0.0, 1e-2, title)
+            if ((k*h*10) % 1) == 0.0:
+                print k*h, x_exact, x_k, abs_err[-1], title
+            k = k + 1
+        #plot(t_vals, x_vals, t_vals_exact, x_vals_exact,
+             #0.0, 1.2, -1.1, 1.1, title)
+        #plot(t_vals, abs_err, [0], [0],
+             #0.0, 1.2, 0.0, 1e-2, title)
 
-#problem_1() # TODO: table summary
-problem_2() # TODO: table summary
+def problem_3():
+    f = lambda x: math.sin(x) - (1 + 2*(math.e**(-x)))**(-1)
+    df = lambda x: math.cos(x) - (2*(math.e**(-x)))*(1 + 2*(math.e**(-x)))**(-2)
+    print
+    print newtons_method(0.5, f, df, 1e-11, 10)[1]
+    print newtons_method(2.0, f, df, 1e-11, 10)[1]
+    f1 = [f(x * 0.01) for x in range(500)]
+    x_vals = [x*0.01 for x in range(500)]
+    plot(x_vals, f1, [0],  [0], 0.0, 5.0, -2.0, 1.0, 'f(x)')
+
+
+#problem_1() # TODO: NOTHING!
+#problem_2() # TODO: NOTHING!
+#problem_3() # TODO: NOTHING!
+#problem_4() # TODO: NOTHING!
