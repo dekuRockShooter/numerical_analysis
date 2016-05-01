@@ -23,6 +23,7 @@ vector example [28, 12, 20, 28]
 
 """
 import math
+import matplotlib.pyplot as plt
 from diff_int import gaussian_quadrature2
 
 ### Supporting functions for Naive Gaussian Elimination function ge_1
@@ -430,7 +431,7 @@ def lsp_discrete(x, y, n):
         for i in range(m):
             sum = sum + ((x[i]**j)*y[i])
         A[j][-1] = sum # This is the b vector of the equation.
-    ge_1(A)[1]
+    return ge_1(A)[1]
 
 def lsp_continuous(f, a, b, n):
     """Calculate the coefficients of a least squares polynomial.
@@ -519,23 +520,68 @@ def lsp_continuous_legendre(f, a, b, n):
 
         # This is the b vector of the equation.
         A[j][-1] = gaussian_quadrature2(g, 5, a, b) 
-    show(A)
-    show(ge_1(A)[1])
+    return ge_1(A)[1]
 
+def plot2(x_vals, y_vals, x2_vals, y2_vals, x_min, x_max, y_min, y_max, title):
+    plt.axvline(x=0,color='black')
+    plt.axhline(y=0,color='black')
+    plt.axis([x_min, x_max, y_min, y_max], 1/6)
+    plt.scatter(x_vals, y_vals, color='red', label='data points')
+    plt.plot(x2_vals, y2_vals, color='blue', label='LSP')
+    plt.title(title)
+    plt.legend(loc='lower right')
+    plt.show()
+
+def plot(x_vals, y_vals, x_min, x_max, y_min, y_max, title):
+    plt.axvline(x=0,color='black')
+    plt.axhline(y=0,color='black')
+    plt.axis([x_min, x_max, y_min, y_max], 1/6)
+    plt.plot(x_vals, y_vals[0], label='f(x)')
+    plt.plot(x_vals, y_vals[1], label='1/2')
+    for k in range(2, len(y_vals)):
+        plt.plot(x_vals, y_vals[k], label='cos(pi*x*' + str(k - 1) + ')')
+    plt.legend(loc='lower center')
+    plt.title(title)
+    plt.show()
+
+
+#degree: 1
+#329.013193034
+#
+#degree: 2
+#0.00144291288593
+#
+#degree: 3
+#0.000527341203057
+#
+#degree: 4
+#4.24597021092e-05
+#
 def problem_1():
-    x = [0.0, 0.2, 0.5, 0.7, 1.1, 1.5, 1.9, 2.3, 2.8, 3.1]
-    y = [2.56, 13.18, 30.11, 42.05, 67.53, 95.14, 124.87, 156.73, 199.50,
+    x_vals = [0.0, 0.2, 0.5, 0.7, 1.1, 1.5, 1.9, 2.3, 2.8, 3.1]
+    y_vals = [2.56, 13.18, 30.11, 42.05, 67.53, 95.14, 124.87, 156.73, 199.50,
          226.72]
+    x_best_fit = [k * 0.01 for k in range(320)]
     for degree in range(1, 5):
         print
         print "degree:", degree
-        lsp_discrete(x, y, degree)
-        print
+        coeffs = lsp_discrete(x_vals, y_vals, degree)
+        
+        def best_fit(x):
+            sum = 0
+            for k in range(len(coeffs)):
+                sum = sum + (coeffs[k] * (x)**k)
+            return sum
+
+        y_best_fit = [best_fit(x) for x in x_best_fit]
+        plot2(x_vals, y_vals, x_best_fit, y_best_fit, 0, 3.3, 0, 200.0,
+              'Least Squares Polynomial of Degree ' + str(degree))
+        print sum([(y_vals[k] - best_fit(x_vals[k]))**2 for k in range(len(x_vals))])
 
 
 ### Test examples.
 
-#problem_1()
+problem_1()
 #problem_2()
 
 # Example 1, Ch.8.1 in Burden & Faires 9E.
@@ -555,16 +601,90 @@ print
 
 # To use the Legendre polynomials for their orthogonality, first do a linear
 # transformation to change the interval of integration to [-1, 1].
-print 'first'
 #lsp_continuous_legendre(lambda x: 0.5*((0.5*(x + 1))**(0.5)), -1, 1, 3)
-#lsp_continuous_legendre(lambda x: x**(0.5), 0, 1, 4)
-def f(x):
-    if x >= 0.5 and x <= 1:
-        return 0
-    if x <= -0.5 and x >= -1:
-        return 0
-    return 0.5
+#print lsp_continuous_legendre(lambda x: x**(3), -1, 1, 4)
 
-lsp_continuous_legendre(f, -1.0, 1.0, 4)
-#lsp_continuous_legendre(lambda x: math.cos(x), -math.pi/2.0, math.pi/2.0, 2)
-print 'first'
+def problem_3():
+
+    def f(x):
+        if x >= 0.5 and x <= 1:
+            return 0
+        if x <= -0.5 and x >= -1:
+            return 0
+        if (x < -1) or (x > 1):
+            return
+        return 0.5
+
+    a = -1
+    b = 1
+    legendre = [lambda x: 1.0, lambda x: x, lambda x: 0.5*(3*(x**2) - 1),
+                lambda x: 0.5*(5*(x**3) - (3*x)),
+                lambda x: (1.0/8)*(35*(x**4) - (30*(x**2)) + 3),
+               ]
+    x_best_fit = [k * 0.01 for k in range(-310, 310)]
+    y_vals = [f(x) for x in x_best_fit]
+    y_best_fits = [y_vals]
+    coeffs = []
+    for k in range(0, 5):
+        f1 = lambda x: f(x) * legendre[k](x)
+        f2 = lambda x: (legendre[k](x))**2
+        numer = gaussian_quadrature2(f1, 5, a, b)
+        denom = gaussian_quadrature2(f2, 5, a, b)
+        coeffs.append(numer / denom)
+
+        def best_fit(x):
+            sum = 0
+            for k in range(len(coeffs)):
+                sum = sum + (coeffs[k] * legendre[k](x))
+            return sum
+
+        y_best_fit = [best_fit(x) for x in x_best_fit]
+        y_best_fits.append(y_best_fit)
+        #plot(x_best_fit, y_vals, x_best_fit, y_best_fit, -1, 1, -1, 1.0, 'title')
+    plot(x_best_fit, y_best_fits, -3, 3, -5, 5,
+             'Least Squares Polynomials Using Legendre Polynomials')
+
+def problem_4():
+
+    def f(x):
+        if x >= 0.5 and x <= 1:
+            return 0
+        if x <= -0.5 and x >= -1:
+            return 0
+        if (x < -1) or (x > 1):
+            return
+        return 0.5
+
+    a = -1
+    b = 1
+    x_best_fit = [k * 0.01 for k in range(-110, 110)]
+    y_best_fits = []
+    y_vals = [f(x) for x in x_best_fit]
+    coeffs = []
+    y_best_fits.append(y_vals)
+    for k in range(0, 6):
+        if k == 0:
+            f1 = lambda x: 0.5 * f(x)
+            f2 = lambda x: 0.25
+        else:
+            f1 = lambda x: f(x) * math.cos(k * math.pi * x)
+            f2 = lambda x: math.cos(k * math.pi * x)**2
+        numer = gaussian_quadrature2(f1, 5, a, b)
+        denom = gaussian_quadrature2(f2, 5, a, b)
+        coeffs.append(numer / denom)
+
+        def best_fit(x):
+            sum = 0
+            sum = sum + (coeffs[0] * 0.5)
+            for k in range(1, len(coeffs)):
+                sum = sum + (coeffs[k] * math.cos(x*k*math.pi))
+            return sum
+
+        y_best_fit = [best_fit(x) for x in x_best_fit]
+        y_best_fits.append(y_best_fit)
+        #plot(x_best_fit, y_vals, x_best_fit, y_best_fit, -1, 1, -1, 1.0, 'title')
+    plot(x_best_fit, y_best_fits, -1, 1, -1.0, 1.4,
+             'Least Squares Polynomials Using Cosines')
+
+#problem_3()
+#problem_4()
