@@ -527,9 +527,9 @@ def plot2(x_vals, y_vals, x2_vals, y2_vals, x_min, x_max, y_min, y_max, title):
     plt.axhline(y=0,color='black')
     plt.axis([x_min, x_max, y_min, y_max], 1/6)
     plt.scatter(x_vals, y_vals, color='red', label='data points')
-    plt.plot(x2_vals, y2_vals, color='blue', label='LSP')
+    plt.plot(x2_vals, y2_vals, color='blue', label='LSE')
     plt.title(title)
-    plt.legend(loc='lower right')
+    plt.legend(loc='top right')
     plt.show()
 
 def plot(x_vals, y_vals, x_min, x_max, y_min, y_max, title):
@@ -540,6 +540,7 @@ def plot(x_vals, y_vals, x_min, x_max, y_min, y_max, title):
     plt.plot(x_vals, y_vals[1], label='1/2')
     for k in range(2, len(y_vals)):
         plt.plot(x_vals, y_vals[k], label='cos(pi*x*' + str(k - 1) + ')')
+        #plt.plot(x_vals, y_vals[k], label='degree ' + str(k - 1))
     plt.legend(loc='lower center')
     plt.title(title)
     plt.show()
@@ -578,7 +579,67 @@ def problem_1():
               'Least Squares Polynomial of Degree ' + str(degree))
         print sum([(y_vals[k] - best_fit(x_vals[k]))**2 for k in range(len(x_vals))])
 
+def problem_2():
+    t = [0.0100, 0.9998, 2.1203, 3.0023, 3.9892, 5.0017]
+    y = [1.9262, 1.0042, 0.4660, 0.2496, 0.0214, 0.0130]
+    exp = lambda k, x2: math.e**(t[k] * x2)
+    diff = lambda k, x1, x2: y[k] - (x1*exp(k, x2))
 
+    def dE_dx1(x1, x2):
+        sum = 0
+        for k in range(len(t)):
+            sum = sum + (diff(k, x1, x2) * -exp(k, x2))
+        return 2.0 * sum
+
+    def dE_dx2(x1, x2):
+        sum = 0
+        for k in range(len(t)):
+            sum = sum + (diff(k, x1, x2) * x1 * t[k] * -exp(k, x2))
+        return 2.0 * sum
+
+    def dE_dx1dx1(x1, x2):
+        sum = 0
+        for k in range(len(t)):
+            sum = sum + (exp(k, 2.0*x2))
+        return 2.0 * sum
+
+    def dE_dx1dx2(x1, x2):
+        sum = 0
+        for k in range(len(t)):
+            term1 = x1 * t[k] * exp(k, 2.0*x2)
+            term2 = (diff(k, x1, x2) * t[k] * exp(k, x2))
+            sum = sum + (term1 - term2)
+        return 2.0 * sum
+
+    def dE_dx2dx2(x1, x2):
+        sum = 0
+        for k in range(len(t)):
+            term1 = ((x1*t[k])**2.0) * exp(k, 2.0*x2)
+            term2 = (diff(k, x1, x2) * x1 * (t[k]**2.0) * exp(k, x2))
+            sum = sum + (term1 - term2)
+        return 2.0 * sum
+
+    x1 = 2.145046416783
+    x2 = -0.720054160509
+    for k in range(10):
+        system = [
+                     [dE_dx1dx1(x1, x2), dE_dx1dx2(x1, x2), -dE_dx1(x1, x2)],
+                     [dE_dx1dx2(x1, x2), dE_dx2dx2(x1, x2), -dE_dx2(x1, x2)],
+                 ]
+        dx = ge_1(system)[1]
+        x1 = x1 + dx[0]
+        x2 = x2 + dx[1]
+        print x1, x2
+        print dE_dx1(x1, x2)
+        print dE_dx2(x1, x2)
+        print
+    t_best_fit = [k*0.01 for k in range(540)]
+    y_best_fit = [x1 * math.e**(x2 * x) for x in t_best_fit]
+    #print str((len(t) - len(y)))
+    plot2(t, y, t_best_fit, y_best_fit, 0, 5.1, 0, 2.0,
+          'Least Squares Exponential')
+    print sum(iter((y[x] - (x1 * math.e**(x2 * t[x])))**2
+              for x in range(len(t))))
 ### Test examples.
 
 #problem_1()
@@ -643,6 +704,8 @@ def problem_3():
         #plot(x_best_fit, y_vals, x_best_fit, y_best_fit, -1, 1, -1, 1.0, 'title')
     plot(x_best_fit, y_best_fits, -1, 1, -1, 1,
              'Least Squares Polynomials Using Legendre Polynomials')
+    plot(x_best_fit, y_best_fits, -3, 3, -5, 5,
+             'Least Squares Polynomials Using Legendre Polynomials')
 
 def problem_4():
 
@@ -657,7 +720,7 @@ def problem_4():
 
     a = -0.5
     b = 0.5
-    x_best_fit = [k * 0.01 for k in range(-110, 110)]
+    x_best_fit = [k * 0.01 for k in range(-310, 310)]
     y_best_fits = []
     y_vals = [f(x) for x in x_best_fit]
     coeffs = []
@@ -685,6 +748,8 @@ def problem_4():
     print coeffs
     plot(x_best_fit, y_best_fits, -1, 1, -1.0, 1.4,
              'Least Squares Polynomials Using Cosines')
+    plot(x_best_fit, y_best_fits, -3, 3, -1.0, 1.4,
+             'Least Squares Polynomials Using Cosines')
 
-problem_3()
+#problem_3()
 problem_4()
