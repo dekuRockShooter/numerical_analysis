@@ -24,7 +24,7 @@ vector example [28, 12, 20, 28]
 """
 import math
 import matplotlib.pyplot as plt
-from diff_int import gaussian_quadrature2
+from diff_int import gaussian_quadrature2, gaussian_quadrature
 
 ### Supporting functions for Naive Gaussian Elimination function ge_1
 
@@ -581,7 +581,7 @@ def problem_1():
 
 ### Test examples.
 
-problem_1()
+#problem_1()
 #problem_2()
 
 # Example 1, Ch.8.1 in Burden & Faires 9E.
@@ -615,8 +615,8 @@ def problem_3():
             return
         return 0.5
 
-    a = -1
-    b = 1
+    a = -1.0
+    b = 1.0
     legendre = [lambda x: 1.0, lambda x: x, lambda x: 0.5*(3*(x**2) - 1),
                 lambda x: 0.5*(5*(x**3) - (3*x)),
                 lambda x: (1.0/8)*(35*(x**4) - (30*(x**2)) + 3),
@@ -628,8 +628,8 @@ def problem_3():
     for k in range(0, 5):
         f1 = lambda x: f(x) * legendre[k](x)
         f2 = lambda x: (legendre[k](x))**2
-        numer = gaussian_quadrature2(f1, 5, a, b)
-        denom = gaussian_quadrature2(f2, 5, a, b)
+        numer = gaussian_quadrature2(f1, 5, -0.5, 0.5)
+        denom = gaussian_quadrature2(f2, 5, -1.0, 1.0)
         coeffs.append(numer / denom)
 
         def best_fit(x):
@@ -641,7 +641,7 @@ def problem_3():
         y_best_fit = [best_fit(x) for x in x_best_fit]
         y_best_fits.append(y_best_fit)
         #plot(x_best_fit, y_vals, x_best_fit, y_best_fit, -1, 1, -1, 1.0, 'title')
-    plot(x_best_fit, y_best_fits, -3, 3, -5, 5,
+    plot(x_best_fit, y_best_fits, -1, 1, -1, 1,
              'Least Squares Polynomials Using Legendre Polynomials')
 
 def problem_4():
@@ -655,8 +655,8 @@ def problem_4():
             return
         return 0.5
 
-    a = -1
-    b = 1
+    a = -0.5
+    b = 0.5
     x_best_fit = [k * 0.01 for k in range(-110, 110)]
     y_best_fits = []
     y_vals = [f(x) for x in x_best_fit]
@@ -669,8 +669,8 @@ def problem_4():
         else:
             f1 = lambda x: f(x) * math.cos(k * math.pi * x)
             f2 = lambda x: math.cos(k * math.pi * x)**2
-        numer = gaussian_quadrature2(f1, 5, a, b)
-        denom = gaussian_quadrature2(f2, 5, a, b)
+        numer = gaussian_quadrature2(f1, 5, -0.5, 0.5)
+        denom = gaussian_quadrature2(f2, 5, -1.0, 1.0)
         coeffs.append(numer / denom)
 
         def best_fit(x):
@@ -682,9 +682,9 @@ def problem_4():
 
         y_best_fit = [best_fit(x) for x in x_best_fit]
         y_best_fits.append(y_best_fit)
-        #plot(x_best_fit, y_vals, x_best_fit, y_best_fit, -1, 1, -1, 1.0, 'title')
+    print coeffs
     plot(x_best_fit, y_best_fits, -1, 1, -1.0, 1.4,
              'Least Squares Polynomials Using Cosines')
 
-#problem_3()
-#problem_4()
+problem_3()
+problem_4()
